@@ -1,0 +1,16 @@
+#container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 800px;
+}
+#ansForm {
+  margin-top: 250px;
+  margin-left: 10%;
+}
+#ansLabel {
+  font-size: 4em;
+}
+#answer {
+  font-size: 2em;
+  padding: 1%;
+}
