@@ -35,23 +35,39 @@
       </form>
     </div>
     <script>
+
+  // Next refactor the pickNumbers and Implement a sequential checkbox
+      let sequential = false;
       let timesTable = 1;
+      let sequentialMultiplier = 1
+      var askedList = [];
+      var missedList = [];
       const numSelect = document.getElementById("numSelect");
       numSelect.addEventListener('change', function() {
         timesTable = numSelect.value;
-        [multiplicand, multiplier] = pickNumbersAndDrawCircles(timesTable);
+        sequentialMultiplier = 1;
+        sequential = false;
+        askedList = [];
+        [multiplicand, multiplier, timesTable] = pickNumbersAndDrawCircles(timesTable);
+
       });
-      [multiplicand, multiplier] = pickNumbersAndDrawCircles(timesTable);
+      [multiplicand, multiplier, timesTable] = pickNumbersAndDrawCircles(timesTable);
       document.getElementById("ansForm").onsubmit = function(event) {
         event.preventDefault();
         if (checkAnswer(multiplicand, multiplier)) {
           applyCorrectAnswerStyles();
           const myTimeout = setTimeout(function() {
-            [multiplicand, multiplier] = pickNumbersAndDrawCircles(timesTable);
+            sequentialMultiplier++
+            if (sequentialMultiplier > 10) {
+              sequential = false;
+              sequentialMultiplier = 1;
+            }
+            [multiplicand, multiplier, timesTable] = pickNumbersAndDrawCircles(timesTable);
             resetAnswerStyles();
           }, 1500);
         } else {
           applyIncorrectAnswerStyles();
+          missedList.push(multiplier);
           const wrongTimeout = setTimeout(function(){
             resetAnswerStyles();
           }, 1600);
@@ -64,7 +80,7 @@
         const svg = document.getElementById('multiply');
         // let multiplicand = Math.floor(Math.random() * 5) + 5;
         // let multiplier = Math.floor(Math.random() * 5) + 5;
-        [multiplicand, multiplier] = pickNumbers(table);
+        [multiplicand, multiplier, table] = pickNumbers(table);
         let cx = 10;
         let cy = 60;
         const RADIUS = 25;
@@ -90,7 +106,7 @@
           cy = cy + 65;
         }
         setQuestion(multiplicand, multiplier);
-        return [multiplicand, multiplier];
+        return [multiplicand, multiplier, table];
       }
 
       function setQuestion(multiplicand, multiplier) {
@@ -127,41 +143,45 @@
         return isCorrect;
       }
 
+// This fucntion has a side effect in that it changes the arrays.
       function pickNumbers(table) {
         let multiplicand = Math.floor(Math.random() * 9) + 1;
         let multiplier = Math.floor(Math.random() * 9) + 1;
-        if (table == 0) {
+        if ( table == 0) {
           multiplicand = Math.floor(Math.random() * 9) + 1;
           multiplier = Math.floor(Math.random() * 9) + 1;
         } else if (table == 1) {
           multiplicand = Math.floor(Math.random() * 5) + 5;
           multiplier = Math.floor(Math.random() * 5) + 5;
-        } else if (table == 2) {
-          multiplicand = 2;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 3) {
-          multiplicand = 3;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 4) {
-          multiplicand = 4;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 5) {
-          multiplicand = 5;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 6) {
-          multiplicand = 6;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 7) {
-          multiplicand = 7;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 8) {
-          multiplicand = 8;
-          multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 9) {
-          multiplicand = 9;
-          multiplier = Math.floor(Math.random() * 9) + 1;
+        } else if (table > 1) {
+          if (askedList.length > 8) {
+            if (missedList.length > 0) {
+              for (var i = 0; i<missedList.length; i++) {
+                for (var j = 0; j <askedList.length; j++) {
+                  if (askedList[j] == missedList[i]) {
+                    askedList.splice(j, 1);
+                  }
+                }
+              }
+              missedList = [];
+            } else {
+              table++
+              askedList = [];
+            }
+          }
+          multiplicand = table;
+          if (sequential) {
+            multiplier = sequentialMultiplier;
+          } else {
+            multiplier = Math.floor(Math.random() * 9) + 1;
+            while (askedList.includes(multiplier)){
+              multiplier = Math.floor(Math.random() * 9) + 1;
+            }
+            askedList.push(multiplier);
+          }
         }
-        return [multiplicand, multiplier];
+
+        return [multiplicand, multiplier, table];
       }
     </script>
   </body>
