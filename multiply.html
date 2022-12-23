@@ -35,8 +35,11 @@
       </form>
     </div>
     <script>
+  // Next Implement a sequential checkbox, and time, and reporting    
+      // let colors = [(1, "black"), (2, "red"), (3, "white"), (4, "green"), (5, "brown"), (6, "blue" ), (7, "orange"), (8, "yellow"), (9, "purple")]
+      // let fillColors = ['rgba(0,0,0,', 'rgba(255,0,0,', 'rgba(0,0,255,', 'rgba(0,128,0,', 'rgba(139,69,10,', 'rgba(0,0,128,', 'rgba(255,140,0,','rgba(255,215,0,','rgba(153,50,204,'];
+      let fillColors = ['rgba(0,0,0,', 'rgba(255,0,0,', 'rgba(0,0,255,', 'rgba(0,255,0,', 'rgba(139,69,10,', 'rgba(0,0,128,', 'rgba(0,100,0,','rgba(220,20,0,','rgba(153,50,204,'];
 
-  // Next refactor the pickNumbers and Implement a sequential checkbox
       let sequential = false;
       let timesTable = 1;
       let sequentialMultiplier = 1
@@ -48,10 +51,10 @@
         sequentialMultiplier = 1;
         sequential = false;
         askedList = [];
-        [multiplicand, multiplier, timesTable] = pickNumbersAndDrawCircles(timesTable);
+        [multiplicand, multiplier, timesTable, askedList, missedList] = pickNumbersAndDrawCircles(timesTable);
 
       });
-      [multiplicand, multiplier, timesTable] = pickNumbersAndDrawCircles(timesTable);
+      [multiplicand, multiplier, timesTable, askedList, missedList] = pickNumbersAndDrawCircles(timesTable);
       document.getElementById("ansForm").onsubmit = function(event) {
         event.preventDefault();
         if (checkAnswer(multiplicand, multiplier)) {
@@ -62,7 +65,7 @@
               sequential = false;
               sequentialMultiplier = 1;
             }
-            [multiplicand, multiplier, timesTable] = pickNumbersAndDrawCircles(timesTable);
+            [multiplicand, multiplier, timesTable, askedList, missedList] = pickNumbersAndDrawCircles(timesTable);
             resetAnswerStyles();
           }, 1500);
         } else {
@@ -74,18 +77,21 @@
         }
       };
 
-      function pickNumbersAndDrawCircles(table) {
+      function pickNumbersAndDrawCircles(timesTable) {
         document.getElementById("submitBtn").value = "Submit";
         const svgns = "http://www.w3.org/2000/svg"
         const svg = document.getElementById('multiply');
-        // let multiplicand = Math.floor(Math.random() * 5) + 5;
-        // let multiplier = Math.floor(Math.random() * 5) + 5;
-        [multiplicand, multiplier, table] = pickNumbers(table);
+        while (svg.firstChild) {
+          svg.removeChild(svg.firstChild);
+        }
+        [multiplicand, multiplier, timesTable, askedList, missedList] = pickNumbers(timesTable);
         let cx = 10;
         let cy = 60;
         const RADIUS = 25;
         const STROKE = "black";
-        let fill = "red";
+        // let fill = "red";
+        let opacity = 0.5;
+        // let fillColor = 'rgba(255, 0, 0,' + opacity + ')';
         for (let j = 0; j < 10; j++) {
           for (let i = 0; i<10; i++) {
             let circ = document.createElementNS(svgns, "circle");
@@ -95,18 +101,25 @@
             circ.setAttribute("r", RADIUS);
             circ.setAttribute("stroke", STROKE);
             if (j<multiplicand && i<multiplier) {
-              fill = "red";
+              // this makes horizontal opacity
+              opacity = opacity + 0.05;
+              fill = fillColors[multiplicand -1] + opacity + ')';
+              // fill = fillColor;
             } else {
               fill = "LightGray"
             }
             circ.setAttribute("fill", fill);
             svg.appendChild(circ);
           }
+          // this would make vertical opacity
+          // opacity = opacity + 0.05;
+          opacity = 0.5;
+          fillColor = 'rgba(255, 0, 0,' + opacity + ')';
           cx = 10;
           cy = cy + 65;
         }
         setQuestion(multiplicand, multiplier);
-        return [multiplicand, multiplier, table];
+        return [multiplicand, multiplier, timesTable, askedList, missedList];
       }
 
       function setQuestion(multiplicand, multiplier) {
@@ -143,45 +156,63 @@
         return isCorrect;
       }
 
-// This fucntion has a side effect in that it changes the arrays.
-      function pickNumbers(table) {
+      function pickNumbers(timesTable) {
         let multiplicand = Math.floor(Math.random() * 9) + 1;
         let multiplier = Math.floor(Math.random() * 9) + 1;
-        if ( table == 0) {
+        if ( timesTable == 0) {
           multiplicand = Math.floor(Math.random() * 9) + 1;
           multiplier = Math.floor(Math.random() * 9) + 1;
-        } else if (table == 1) {
+        } else if (timesTable == 1) {
           multiplicand = Math.floor(Math.random() * 5) + 5;
           multiplier = Math.floor(Math.random() * 5) + 5;
-        } else if (table > 1) {
-          if (askedList.length > 8) {
-            if (missedList.length > 0) {
-              for (var i = 0; i<missedList.length; i++) {
-                for (var j = 0; j <askedList.length; j++) {
-                  if (askedList[j] == missedList[i]) {
-                    askedList.splice(j, 1);
-                  }
-                }
-              }
-              missedList = [];
-            } else {
-              table++
-              askedList = [];
-            }
-          }
-          multiplicand = table;
+        } else if (timesTable > 1) {
+          [timesTable, askedList, missedList] = moveToMissedQuestionsOrNextTable(timesTable, askedList, missedList);
+          multiplicand = timesTable;
           if (sequential) {
             multiplier = sequentialMultiplier;
           } else {
-            multiplier = Math.floor(Math.random() * 9) + 1;
-            while (askedList.includes(multiplier)){
-              multiplier = Math.floor(Math.random() * 9) + 1;
-            }
-            askedList.push(multiplier);
+            [askedList, multiplier] = setMultiplierNotInAskedList(askedList);
           }
         }
+        return [multiplicand, multiplier, timesTable, askedList, missedList];
+      }
 
-        return [multiplicand, multiplier, table];
+      function resetMissedList(askedList, missedList) {
+        for (var i = 0; i<missedList.length; i++) {
+          for (var j = 0; j <askedList.length; j++) {
+            if (askedList[j] == missedList[i]) {
+              askedList.splice(j, 1);
+            }
+          }
+        }
+        missedList = [];
+        return [askedList, missedList];
+      }
+
+      function moveToMissedQuestionsOrNextTable(timesTable, askedList, missedList) {
+        if (askedList.length > 8) {
+          if (missedList.length > 0) {
+            [askedList, missedList] = resetMissedList(askedList, missedList);
+          } else {
+            timesTable++
+            askedList = [];
+          }
+        }
+        return [timesTable, askedList, missedList];
+      }
+
+      function setMultiplierNotInAskedList(askedList) {
+        multiplier = Math.floor(Math.random() * 9) + 1;
+        while (askedList.includes(multiplier)){
+          multiplier = Math.floor(Math.random() * 9) + 1;
+        }
+        askedList = updateAskedList(askedList, multiplier);
+        return [askedList, multiplier];
+      }
+
+      function updateAskedList(askedList, multiplier) {
+        askedList.push(multiplier);
+        return askedList;
       }
     </script>
   </body>

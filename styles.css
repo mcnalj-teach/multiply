@@ -2,6 +2,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 800px;
+  /* background-color: rgb(250, 235, 215); */
+  background-color: rgb(255, 255, 240);
 }
 #ansForm {
   margin-top: 250px;
