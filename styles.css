@@ -5,14 +5,46 @@
   /* background-color: rgb(250, 235, 215); */
   background-color: rgb(255, 255, 240);
 }
-#ansForm {
-  margin-top: 250px;
+#answerContainer {
+  margin-top: 200px;
   margin-left: 10%;
 }
+#messageParagraph {
+  font-size: 2em;
+  color: rgb(20,20,20);
+  visibility: hidden;
+}
+#numSelect {
+  width: 80%;
+  font-size: 24px;
+}
+#sequentialCheck {
+  margin-top: 3%;
+  display: none;
+}
+#sequentialLabel {
+  margin-top: 3%;
+  display: none;
+}
+/* #ansForm {
+  margin-top: 250px;
+  margin-left: 10%;
+} */
 #questionLabel {
   font-size: 4em;
 }
 #answer {
   font-size: 2em;
   padding: 1%;
+}
+#progressLabel {
+  display: none;
+}
+
+#answerProgress {
+  width: 80%;
+  margin-top: 2%;
+  font-size: 36;
+  /* background: green;
+  background-color: white; */
 }
