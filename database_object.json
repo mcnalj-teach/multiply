@@ -1,0 +1,33 @@
+userObj = {
+  username: "mcnalj",
+  password: "multiply",
+  personalInformation: {
+    firstName: "Jake",
+    lastName: "McNally",
+    crew: "McNally",
+    grade:12,
+    school: "Casco Bay High School",
+    email: "mcnalj@portlandschools.org",
+  },
+  classMemberships:["3e4GRT"],
+  usageInformation: {
+    dateJoined:0,
+    timesLoggedIn: 0,
+    totalTimeSpent: 0,
+    totalQuestionsAnswered:0,
+    totalQuestionsCorrect:0,
+    totalQuestionsIncorrect:0,
+    averageDuration:0,
+  },
+  lastSessionInformation: {
+    lastLogin:0,
+    lastQuestionsAnswered:0,
+    lastQuestionsCorrect:0,
+    lastQuestionsIncorrect:0,
+    lastTimeSpent:0,
+  },
+  progress: {
+    multipliersMastered:0,
+    challengingQuestions:0
+  }
+}
